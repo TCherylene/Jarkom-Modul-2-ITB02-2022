@@ -793,7 +793,48 @@ Loid juga meminta Franky untuk dibuatkan konfigurasi virtual host. Virtual host 
 
 ## Jawaban13
 
-abc
+Lakukan konfigurasi file `nano /etc/apache2/sites-available/eden.wise.itb02.com.conf`
+
+```
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/eden.wise.itb02.com
+        ServerName eden.wise.itb02.com
+        ServerAlias www.eden.wise.itb02.com
+ 
+        <Directory /var/www/eden.wise.itb02.com>
+                Options +FollowSymLinks -Multiviews
+                AllowOverride All
+        </Directory>
+ 
+        <Directory /var/www/eden.wise.itb02.com/public>
+            Options +Indexes
+        </Directory>
+ 
+        Alias "/js" "/var/www/eden.wise.itb02.com/public/js"
+ 
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+ 
+</VirtualHost>
+```
+Restart apache `service apache2 restart`
+
+### Testing 13 Client (SSS & Garden)
+
+1. Masukkan IP Eden ke resolv.conf -> `nano /etc/resolv.conf`
+```
+nameserver 192.215.2.2
+nameserver 192.215.3.2
+nameserver 192.215.3.3
+```
+
+2. Testing -> `lynx eden.wise.itb02.com/js`
+
+Hasil:
+
+![SSS](images/nomor13.1.png)
+
 
 ## Nomor 14
 
