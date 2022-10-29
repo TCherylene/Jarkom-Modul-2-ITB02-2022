@@ -724,7 +724,54 @@ Setelah itu, pada subdomain www.eden.wise.yyy.com, Loid membutuhkan penyimpanan 
 
 ## Jawaban10
 
-abc
+Buka node Eden dan masukan `nano /etc/apache2/sites-available/eden.wise.itb02.com.conf` di terminal dan edit seperti berikut lalu save
+
+```
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/eden.wise.itb02.com
+        ServerName eden.wise.itb02.com
+        ServerAlias www.eden.wise.itb02.com
+ 
+        <Directory /var/www/eden.wise.itb02.com>
+                Options +FollowSymLinks -Multiviews
+                AllowOverride All
+        </Directory>
+ 
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+ 
+</VirtualHost>
+
+```
+
+Aktifkan configuration dari eden.wise.itb02.com.conf dengan
+`a2ensite eden.wise.itb02.com.conf`
+
+Reload apache
+`service apache2 reload`
+
+Buat folder eden.wise.itb02.com
+`mkdir -p  /var/www/eden.wise.itb02.com/`
+
+Download file yang dibutuhkan, unzip lalu copy ke eden.wise
+`wget --no-check-certificate 'https://docs.google.com/uc?export=dowload&id=1q9g6nM85bW5T9f5yoyXtDqonUKKCHOTV' -O /root/eden.wise.zip`
+`unzip /root/eden.wise.zip -d /root `
+`cp -r /root/eden.wise/. /var/www/eden.wise.itb02.com`
+
+restart service apache
+`service apache2 restart`
+
+Pindah ke NODE client (SSS & Garden) dan edit /etc/resolv.conf seperti berikut:
+```
+nameserver 192.215.2.2
+nameserver 192.215.3.2
+nameserver 192.215.3.3
+
+```
+Hasil test:
+
+![tes](https://cdn.discordapp.com/attachments/873077363796230156/1035916314520334376/unknown.png)
 
 ## Nomor 11
 
@@ -732,7 +779,36 @@ Akan tetapi, pada folder /public, Loid ingin hanya dapat melakukan directory lis
 
 ## Jawaban11
 
-abc
+Buka NODE eden dan konfigurasikan file `nano /etc/apache2/sites-available/eden.wise.itb02.com.conf` seperti berikut:
+
+```
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/eden.wise.itb02.com
+        ServerName eden.wise.itb02.com
+        ServerAlias www.eden.wise.itb02.com
+ 
+        <Directory /var/www/eden.wise.itb02.com>
+                Options +FollowSymLinks -Multiviews
+                AllowOverride All
+        </Directory>
+ 
+        <Directory /var/www/eden.wise.itb02.com/public>
+            Options +Indexes
+        </Directory>
+ 
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+ 
+</VirtualHost>
+
+```
+
+restart service apache dengan `service apache restart`
+
+hasil tes:
+
+![tes](https://cdn.discordapp.com/attachments/873077363796230156/1035917555405160520/unknown.png)
 
 ## Nomor 12
 
