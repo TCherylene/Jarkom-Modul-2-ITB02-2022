@@ -531,7 +531,37 @@ Untuk informasi yang lebih spesifik mengenai Operation Strix, buatlah subdomain 
 
 ## Jawaban7
 
-abc
+Kita langsung saja edit konfigurasi dengan menggunakan command `nano /etc/bind/operation/operation.wise.itb02.com`.
+```sh
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     operation.wise.itb02.com. root.operation.wise.itb02.com. (
+                        20221025        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@               IN      NS      operation.wise.itb02.com.
+@               IN      A       192.215.3.3
+www             IN      CNAME   operation.wise.itb02.com.
+strix           IN      A       192.215.3.3
+www.strix       IN      CNAME   strix.operation.wise.itb02.com.
+@       	IN      AAAA    ::1
+```
+
+Lalu kita melakukan restart bind9 dengan command `service bind9 restart`.
+
+## Testing 7
+Jalankan `ping strix.operation.wise.itb02.com` pada client **SSS** dan **Garden**
+
+Hasil:
+
+
+![Tes SSS](images/nomor7.1.png)
+
 
 ## Nomor 8
 
