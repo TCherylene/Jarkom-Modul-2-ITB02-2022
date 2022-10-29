@@ -125,6 +125,8 @@ Mencari IP DNS dari **Ostania** menggunakan command: `cat /etc/resolv.conf` deng
 
 Memasukkan command `echo nameserver 192.168.122.1 > /etc/resolv.conf` **di setiap node** agar terhubung ke DNS Ostania.
 
+### Testing1
+
 Hasil percobaan ping google.com:
 
 ![Hasil percobaan ping google](images/nomor1.2.png)
@@ -135,7 +137,7 @@ Untuk mempermudah mendapatkan informasi mengenai misi dari Handler, bantulah Loi
 
 ## Jawaban2
 
-Karena WISE merupakan DNS Master, maka konfigurasi dilakukan di node **WISE**. Pertama-tama kami membuat domain-nya terlebih dahulu pada **WISE**.
+Karena WISE merupakan DNS Master, maka konfigurasi dilakukan di node **WISE**. Pertama-tama kami membuat domainnya terlebih dahulu pada **WISE** setelah itu ditambahkan konfigurasi untuk CNAME.
 
 ```sh
 apt-get update
@@ -242,7 +244,62 @@ Buat juga reverse domain untuk domain utama (4).
 
 ## Jawaban4
 
-abc
+Untuk pembuatan reverse DNS, dilakukan konfigurasi berikut pada **WISE** file `/etc/bind/named.conf.local`.
+
+```sh
+//
+// Do any local configuration here
+//
+ 
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+zone "wise.itb02.com" {
+        type master;
+        file "/etc/bind/wise/wise.itb02.com";
+};
+zone "2.215.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/wise/2.215.192.in-addr.arpa";
+};
+```
+
+Selanjutnya, copy file `etc/bind/db.local` pada `/etc/bind/wise/2.215.192.in-addr.arpa`, selanjutnya melakukan konfigurasi berikut:
+
+```sh
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     wise.itb02.com. root.wise.itb02.com. (
+                        20221025        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+2.215.192.in-addr.arpa. IN      NS      wise.itb02.com.
+2                       IN      PTR     wise.itb02.com.
+```
+
+Selanjutnya restart bind9 dengan menggunakan command `service bind9 restart`.
+
+### Testing4
+
+Selanjutnya, melakukan testing pada client **SSS** dan **Garden**:
+
+1. Install dnsutils
+    * Mengembalikan ke IP DNS agar terhubung ke internet `echo nameserver 192.168.122.1 > /etc/resolv.conf`
+    * `apt-get update`
+    * `apt-get install dnsutils -y`
+
+2. Menghubungkan kembali ke IP WISE `echo nameserver 192.215.2.2 > /etc/resolv.conf`
+3. Melakukan testing dengan command `host -t PTR 192.215.2.2`.
+
+Hasil:
+![Tes SSS](images/nomor4.1.png)
+
+![Tes Garden](images/nomor4.2.png)
 
 ## Nomor 5
 
