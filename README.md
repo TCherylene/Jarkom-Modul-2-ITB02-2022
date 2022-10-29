@@ -740,7 +740,52 @@ Tidak hanya itu, Loid juga ingin menyiapkan error file 404.html pada folder /err
 
 ## Jawaban12
 
-abc
+Pertama sekali, kita lakukan konfigurasi file  `nano /etc/apache2/sites-available/eden.wise.itb02.com.conf`
+
+```
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/eden.wise.itb02.com
+        ServerName eden.wise.itb02.com
+        ServerAlias www.eden.wise.itb02.com
+ 
+        ErrorDocument 404 /error/404.html
+        ErrorDocument 500 /error/404.html
+        ErrorDocument 502 /error/404.html
+        ErrorDocument 503 /error/404.html
+        ErrorDocument 504 /error/404.html
+ 
+        <Directory /var/www/eden.wise.itb02.com>
+                Options +FollowSymLinks -Multiviews
+                AllowOverride All
+        </Directory>
+ 
+        <Directory /var/www/eden.wise.itb02.com/public>
+            Options +Indexes
+        </Directory>
+ 
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+ 
+</VirtualHost>
+```
+
+Lalu restart apache `service apache2 restart`
+
+### Testing 12 Client (SSS & Garden)
+
+1. Masukkan IP Eden ke resolv.conf -> `nano /etc/resolv.conf`
+```
+nameserver 192.215.2.2
+nameserver 192.215.3.2
+nameserver 192.215.3.3
+```
+
+2. Testing -> `lynx eden.wise.itb02.com/hayo`
+
+Hasil:
+
+![SSS](images/nomor12.1.png)
 
 ## Nomor 13
 
