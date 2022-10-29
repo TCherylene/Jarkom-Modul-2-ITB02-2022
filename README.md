@@ -359,6 +359,7 @@ Selanjutnya, melakukan testing pada client **SSS** dan **Garden**:
 2. Melakukan testing dengan command `ping wise.itb02.com` dan `ping wise.itb02.com`
 
 Hasil:
+
 ![Tes SSS](images/nomor5.1.png)
 
 ![Tes Garden](images/nomor5.2.png)
