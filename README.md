@@ -370,7 +370,157 @@ Karena banyak informasi dari Handler, buatlah subdomain yang khusus untuk operat
 
 ## Jawaban6
 
-abc
+Pertama sekali kita kita edit konfigurasi terlebih dahulu di **WISE** dengan menjalankan command `nano /etc/bind/wise/wise.itb02.com`
+
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     wise.itb02.com. root.wise.itb02.com. (
+                        20221025        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@               IN      NS      wise.itb02.com.
+@               IN      A       192.215.2.2
+www             IN      CNAME   wise.itb02.com.
+@               IN      AAAA    ::1
+eden            IN      A       192.215.3.3    
+www.eden        IN      CNAME   eden.wise.itb02.com.
+ns1             IN      A       192.215.3.2
+operation       IN      NS      ns1 
+```
+
+Lalu, kita jalankan `nano /etc/bind/named.conf.options` pada **WISE** untuk mengedit beberapa options.
+
+```
+options {
+        directory "/var/cache/bind";
+ 
+        // If there is a firewall between you and nameservers you want
+        // to talk to, you may need to fix the firewall to allow multiple
+        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+ 
+        // If your ISP provided one or more IP addresses for stable
+        // nameservers, you probably want to use them as forwarders.
+        // Uncomment the following block, and insert the addresses replacing
+        // the all-0s placeholder.
+       
+        // forwarders {
+        //      0.0.0.0;
+        // };
+       
+        //=====================================================================$
+        // If BIND logs error messages about the root key being expired,
+        // you will need to update your keys.  See https://www.isc.org/bind-keys
+        //=====================================================================$
+        //dnssec-validation auto;
+        allow-query{any;};
+ 
+        auth-nxdomain no;    # conform to RFC1035
+        listen-on-v6 { any; };
+};
+```
+
+Yang diedit adalah:
+-Komen `dnssec-validation auto;`
+-allow-query{any;};
+
+Lalu pada **Berlint** kita melakukan edit konfigurasi dengan menjalankan command `nano /etc/bind/named.conf.local` terlebih dahulu.
+
+```
+//
+// Do any local configuration here
+//
+ 
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+zone "wise.itb02.com" {
+    type slave;
+    masters { 192.215.2.2; };
+    file "/var/lib/bind/wise.itb02.com";
+};
+ 
+zone "operation.wise.itb02.com" {
+        type master;
+        file "/etc/bind/operation/operation.wise.itb02.com";
+};
+```
+Lalu, kita membuat folder operation `nano /etc/bind/named.conf.options` dan mengedit file optionsnya `nano /etc/bind/named.conf.options`.
+
+```
+options {
+        directory "/var/cache/bind";
+ 
+        // If there is a firewall between you and nameservers you want
+        // to talk to, you may need to fix the firewall to allow multiple
+        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+ 
+        // If your ISP provided one or more IP addresses for stable
+        // nameservers, you probably want to use them as forwarders.
+        // Uncomment the following block, and insert the addresses replacing
+        // the all-0's placeholder.
+       
+        // forwarders {
+        //      0.0.0.0;
+        // };
+       
+        //=====================================================================$
+        // If BIND logs error messages about the root key being expired,
+        // you will need to update your keys.  See https://www.isc.org/bind-keys
+        //=====================================================================$
+        //dnssec-validation auto;
+        allow-query{any;};
+ 
+        auth-nxdomain no;    # conform to RFC1035
+        listen-on-v6 { any; };
+};
+```
+Yang diedit adalah:
+-Komen `dnssec-validation auto;`
+-allow-query{any;};
+
+Setelah itu, kita copy db.local ke dalam operation.wise.itb02.com `cp /etc/bind/db.local /etc/bind/operation/operation.wise.itb02.com`
+Lalu edit menggunakan command `nano /etc/bind/operation/operation.wise.itb02.com`.
+
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     operation.wise.itb02.com. root.operation.wise.itb02.com. (
+                        20221025        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      operation.wise.itb02.com.
+@       IN      A       192.215.3.3
+www     IN      CNAME   operation.wise.itb02.com.
+@       IN      AAAA    ::1
+```
+
+Selanjutnya, kita melakukan restart bind9 `service bind9 restart`.
+
+### Testing7
+
+Selanjutnya, melakukan testing pada client **SSS** dan **Garden**:
+
+Melakukan testing dengan command `ping www.operation.wise.itb02.com` dan `ping operation.wise.itb02.com`
+
+Hasil:
+
+
+![Tes SSS](images/nomor7.1.png)
+
+![Tes Garden](images/nomor7.2.png)
+
+
 
 ## Nomor 7
 
