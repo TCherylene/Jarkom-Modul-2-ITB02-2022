@@ -507,7 +507,7 @@ www     IN      CNAME   operation.wise.itb02.com.
 
 Selanjutnya, kita melakukan restart bind9 `service bind9 restart`.
 
-### Testing7
+### Testing6
 
 Selanjutnya, melakukan testing pada client **SSS** dan **Garden**:
 
@@ -516,9 +516,9 @@ Melakukan testing dengan command `ping www.operation.wise.itb02.com` dan `ping o
 Hasil:
 
 
-![Tes SSS](images/nomor7.1.png)
+![Tes SSS](images/nomor6.1.png)
 
-![Tes Garden](images/nomor7.2.png)
+![Tes Garden](images/nomor6.2.png)
 
 
 
