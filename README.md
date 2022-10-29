@@ -485,6 +485,7 @@ Yang diedit adalah:
 -allow-query{any;};
 
 Setelah itu, kita copy db.local ke dalam operation.wise.itb02.com `cp /etc/bind/db.local /etc/bind/operation/operation.wise.itb02.com`
+
 Lalu edit menggunakan command `nano /etc/bind/operation/operation.wise.itb02.com`.
 
 ```
@@ -517,8 +518,6 @@ Hasil:
 
 
 ![Tes SSS](images/nomor6.1.png)
-
-![Tes Garden](images/nomor6.2.png)
 
 
 
