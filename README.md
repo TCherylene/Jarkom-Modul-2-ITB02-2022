@@ -307,7 +307,61 @@ Agar dapat tetap dihubungi jika server WISE bermasalah, buatlah juga Berlint seb
 
 ## Jawaban5
 
-abc
+Untuk pembuatan DNS slave, kita buat konfigurasi di **WISE** terlebih dahulu.
+`nano /etc/bind/named.conf.local`
+
+```
+//
+// Do any local configuration here
+//
+ 
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+zone "wise.itb02.com" {
+    type master;
+    notify yes;
+    also-notify { 192.215.3.2; };
+    allow-transfer { 192.215.3.2; };
+    file "/etc/bind/wise/wise.itb02.com";
+};
+zone "2.215.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/wise/2.215.192.in-addr.arpa";
+};
+```
+
+Selanjutnya restart bind9 dengan menggunakan command `service bind9 restart`.
+
+Setelah itu, kita lakukan konfigurasi DNS slave pada **Berlint** di dalam folder `/etc/bind/named.conf.local`.
+
+```
+//
+// Do any local configuration here
+//
+ 
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+zone "wise.itb02.com" {
+    type slave;
+    masters { 192.215.2.2; };
+    file "/var/lib/bind/wise.itb02.com";
+};
+```
+Selanjutnya restart bind9 dengan menggunakan command `service bind9 restart`.
+
+### Testing5
+
+Selanjutnya, melakukan testing pada client **SSS** dan **Garden**:
+
+1. Menambahkan nameserver pada **SSS** dan **Garden** `echo nameserver 192.215.2.2 > /etc/resolv.conf` dan `echo nameserver 192.215.3.2 > /etc/resolv.conf`
+2. Melakukan testing dengan command `ping wise.itb02.com` dan `ping wise.itb02.com`
+
+Hasil:
+![Tes SSS](images/nomor5.1.png)
+
+![Tes Garden](images/nomor5.2.png)
 
 ## Nomor 6
 
