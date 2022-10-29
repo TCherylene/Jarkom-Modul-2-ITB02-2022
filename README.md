@@ -481,8 +481,10 @@ options {
 };
 ```
 Yang diedit adalah:
--Komen `dnssec-validation auto;`
--allow-query{any;};
+
+1. Komen `dnssec-validation auto;`
+
+2. allow-query{any;};
 
 Setelah itu, kita copy db.local ke dalam operation.wise.itb02.com `cp /etc/bind/db.local /etc/bind/operation/operation.wise.itb02.com`
 
