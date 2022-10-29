@@ -23,9 +23,6 @@ Anggota kelompok:
 * [Nomor 12](#nomor-12) & [Jawaban](#jawaban12)
 * [Nomor 13](#nomor-13) & [Jawaban](#jawaban13)
 * [Nomor 14](#nomor-14) & [Jawaban](#jawaban14)
-* [Nomor 15](#nomor-15) & [Jawaban](#jawaban15)
-* [Nomor 16](#nomor-16) & [Jawaban](#jawaban16)
-* [Nomor 17](#nomor-17) & [Jawaban](#jawaban17)
 
 ## Bentuk Topologi
 
@@ -555,13 +552,12 @@ www.strix       IN      CNAME   strix.operation.wise.itb02.com.
 Lalu kita melakukan restart bind9 dengan command `service bind9 restart`.
 
 ## Testing 7
+
 Jalankan `ping strix.operation.wise.itb02.com` pada client **SSS** dan **Garden**
 
 Hasil:
 
-
 ![Tes SSS](images/nomor7.1.png)
-
 
 ## Nomor 8
 
@@ -569,7 +565,95 @@ Setelah melakukan konfigurasi server, maka dilakukan konfigurasi Webserver. Pert
 
 ## Jawaban8
 
-abc
+Pertama, karena web servernya di Eden, jadi IP WISE yang ada di `/etc/bind/wise/wise.itb02.com` diganti jadi IP Eden.
+
+WISE
+
+```sh
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     wise.itb02.com. root.wise.itb02.com. (
+                        20221025        ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@        IN      NS      wise.itb02.com.
+@        IN      A       192.215.3.3 ;IP Eden
+www     IN      CNAME   wise.itb02.com.
+@        IN      AAAA    ::1
+eden     IN      A       192.215.3.3 ;IP Eden
+www.eden IN      CNAME   eden.wise.itb02.com
+ns1      IN      A       192.215.3.2 ;IP Berlint
+operation IN     NS      ns1
+```
+
+Restart bind9 `service bind9 restart`
+
+Eden
+Install:
+
+```sh
+apt-get install apache2 -y
+apt-get install php -y
+apt-get install unzip -y
+apt-get install libapache2-mod-php7.0 -y
+apt-get install ca-certificates openssl -y
+apt-get install wget -y
+```
+
+Edit file `nano /etc/apache2/sites-available/wise.itb02.com.conf`
+
+```sh
+<VirtualHost *:80>
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/wise.itb02.com
+        ServerName wise.itb02.com
+        ServerAlias www.wise.itb02.com
+
+        ErrorLog \${APACHE_LOG_DIR}/error.log
+        CustomLog \${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+Buat folder baru di dalam `/var/www/wise.itb02.com`, download resource dari drive, unzip hasil download, dan copy hasil file ke `/var/www/wise.itb02.com`
+
+```sh
+mkdir -p /var/www/wise.itb02.com
+
+wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1S0XhL9ViYN7TyCj2W66BNEXQD2AAAw2e' -O /root/wise.zip
+
+unzip /root/wise.zip -d /root
+
+cp -r /root/wise/. /var/www/wise.itb02.com
+```
+
+Start apache2, aktifkan configuration untuk wise.itb02.conf & reload apache
+
+```sh
+service apache2 start
+a2ensite wise.itb02.conf
+service apache2 reload
+```
+
+### Testing 8 Client (SSS & Garden)
+
+1. Install lynx `apt-get install lynx -y`
+2. Masukkan IP Eden ke resolv.conf -> `nano /etc/resolv.conf`
+
+    ```sh
+    nameserver 192.215.2.2
+    nameserver 192.215.3.2
+    nameserver 192.215.3.3
+    ```
+
+3. Testing -> `lynx wise.itb02.com` dan `lynx www.wise.itb02.com`
+
+![Tes Garden](images/modul8.2.png)
 
 ## Nomor 9
 
@@ -577,7 +661,62 @@ Setelah itu, Loid juga membutuhkan agar url www.wise.yyy.com/index.php/home dapa
 
 ## Jawaban9
 
-abc
+Lakukan `a2enmod rewrite` terlebih dahulu dan restart apache sebagai berikut:
+
+```sh
+a2enmod rewrite
+service apache2 restart
+```
+
+Konfigurasi file `nano /var/www/wise.itb02.com/.htaccess`
+
+```sh
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule (.*) /index.php/\$1 [L]
+```
+
+Inti dari konfigurasi tersebut adalah kita melakukan cek apakah request tersebut adalah ke file atau bukan dan ke direktori atau bukan jika hal tersebut terpenuhi maka kita membuat rule untuk melakukan direct ke /index.php/home. $1 merupakan parameter yang diinputkan di url konfigurasi file
+
+Konfigurasi file `nano /etc/apache2/sites-available/wise.itb02.com.conf`
+
+```sh
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/wise.itb02.com
+        ServerName wise.itb02.com
+        ServerAlias www.wise.itb02.com
+ 
+        Alias "/home" "/var/www/wise.itb02.com/index.php/home"
+ 
+        <Directory /var/www/wise.itb02.com>
+                Options +Indexes                  
+        </Directory>
+ 
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+ 
+</VirtualHost>
+```
+
+Restart apache2 `service apache2 restart`
+
+### Testing 9 Client (SSS & Garden)
+
+1. Masukkan IP Eden ke resolv.conf -> `nano /etc/resolv.conf`
+
+```sh
+nameserver 192.215.2.2
+nameserver 192.215.3.2
+nameserver 192.215.3.3
+```
+
+2. Testing client `lynx wise.itb02.com/home` dan `lynx www.wise.itb02.com/home`
+
+Hasil:
+
+![Garden](images/nomor9.1.png)
 
 ## Nomor 10
 
