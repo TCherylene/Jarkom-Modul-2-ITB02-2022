@@ -426,8 +426,10 @@ options {
 ```
 
 Yang diedit adalah:
--Komen `dnssec-validation auto;`
--allow-query{any;};
+
+1. Komen `dnssec-validation auto;`
+
+2. allow-query{any;};
 
 Lalu pada **Berlint** kita melakukan edit konfigurasi dengan menjalankan command `nano /etc/bind/named.conf.local` terlebih dahulu.
 
